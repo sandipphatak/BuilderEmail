@@ -1,0 +1,114 @@
+<select id="styleFont"  style="width: 30%;margin-bottom: 30px;padding: 10px 0;">
+</select>
+<br>
+<select id="styleFontOP" style="width: 30%;margin-bottom: 30px;padding: 10px 0;">
+</select>
+<br>
+<textarea id="custom_text" style="width: 30%;margin-bottom: 30px;padding: 10px ;"></textarea> 
+<script>
+
+
+let fontPreview = document.getElementById("custom_text");
+let selectVariant = document.getElementById("styleFontOP");
+
+function getData(){
+   let url = "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCcyENRATfAMaX75oUYf12Ll2WVJxqtyRw&sort=popularity";
+   fetch(url).then((response) => {
+       return response.json();
+   }).then((data)=>{
+       for (let i = 0; i < data.items.length; i++) {  
+           // console.log(data.items[i].family);
+           let selectFont = document.getElementById("styleFont");
+           let option = document.createElement('option');
+           option.textContent = data.items[i].family;
+           option.value = data.items[i].family;
+           selectFont.add(option);
+       }
+   });
+}
+getData();
+
+
+let font = document.getElementById('styleFont');
+font.addEventListener('change', (e) => {
+
+   let FValue = e.target.value;
+   console.log(FValue);
+
+   let apiUrl = [];
+   apiUrl.push('https://fonts.googleapis.com/css?family=' + FValue.replace(/ /g, '+') );
+   
+//    let uniqueApiUrl = [...new Set(apiUrl)];
+//    console.log(uniqueApiUrl);
+  
+   let urls = apiUrl.join('');
+   let fontLink = document.createElement("link");
+   fontLink.setAttribute("href", urls);
+   fontLink.setAttribute("rel", 'stylesheet');
+   fontLink.setAttribute("class", 'font_link');
+   document.body.appendChild(fontLink);   
+
+
+   let linkFont = document.querySelectorAll('.font_link');
+   linkFont.forEach(function (getAtrr) {
+    let attr = getAtrr.getAttribute('href').length;
+    let match = apiUrl[0];
+    if (attr  === match) {
+        fontLink.setAttribute("href", attr);
+        console.log(" inif");
+        alert(linkFont.length); 
+    }
+    console.log(attr + " inner");
+   });
+
+   function getVariants(){
+       let urlvariant = "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCcyENRATfAMaX75oUYf12Ll2WVJxqtyRw&sort=popularity";
+       fetch(urlvariant).then((res) => {
+           return res.json();
+       }).then((variant)=>{
+
+           for (let i = 0; i < variant.items.length; i++) {  
+               // console.log(variant.items[i].family);
+               if (FValue === variant.items[i].family) {
+
+                   selectVariant.innerHTML = "";
+
+                   let fv = variant.items[i].variants;
+                   fv.splice(fv.indexOf('regular'), 1, '400');
+                   fv.forEach(function(val) {
+                       let option = document.createElement('option');
+                       option.textContent = val;
+                       option.value = val;
+                       selectVariant.appendChild(option);
+                   });
+
+                   let variantArray = [];
+                   selectVariant.addEventListener('change', () => {
+                        let variantVal = selectVariant.value;;
+                        fontPreview.style.fontWeight = variantVal;
+                    
+                        variantArray.push(variantVal);
+
+                        let uniqueVariants = [...new Set(variantArray)];
+                        uniqueVariants.sort()
+                        let u_vari = uniqueVariants.join(";");
+                        
+                        let lastLink = document.getElementsByClassName("font_link");
+                        let last_fontLink = lastLink[lastLink.length - 1];
+                        last_fontLink.setAttribute("href", apiUrl + ':wght@' + u_vari);
+                      
+                   });
+                   
+               }
+
+           }
+       });
+   }
+   getVariants();
+
+   fontPreview.style.fontFamily = font.value;
+
+}); 
+
+
+</script>

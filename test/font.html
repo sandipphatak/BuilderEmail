@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Builder</title>
+</head>
+
+<body>
+    <!-- Here a loader is created which 
+             loads till response comes -->
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" id="loading">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <h1>Registered Employees</h1>
+    <!-- table for showing data -->
+    <table id="employees"></table>
+</body>
+
+<script type="text/javascript">
+    /* function fetchData() {
+    		 fetch('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCcyENRATfAMaX75oUYf12Ll2WVJxqtyRw&sort=popularity')
+    		 .then(response => {
+    		 	return response.json();
+    		 })
+    		 .then(items => {
+    		 	console.log(items);
+    		 });
+    	}
+		fetchData();*/
+
+    async function getFont(fontObject) {
+
+        var googleFontAPI =
+            "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCcyENRATfAMaX75oUYf12Ll2WVJxqtyRw&sort=popularity";
+        let url = null;
+        await $.getJSON(googleFontAPI, function (data) {
+            let result = data.items;
+
+            if (result.filter(x => x.family === fontObject.family).length > 0) {
+                var apiUrl = [];
+                apiUrl.push('https://fonts.googleapis.com/css?family=');
+                apiUrl.push(fontObject.family.replace(/ /g, '+'));
+                if (fontObject.variants.includes('italic')) {
+                    apiUrl.push(':');
+                    apiUrl.push('italic');
+                }
+                if (fontObject.subsets.includes('greek')) {
+                    apiUrl.push('&subset=');
+                    apiUrl.push('greek');
+                }
+                // url: 'https://fonts.googleapis.com/css?family=Anonymous+Pro:italic&subset=greek'
+                url = apiUrl.join('');
+            }
+        });
+        console.log(url)
+        return url
+    }
+
+    let fontObject = {
+        family: 'Anonymous Pro',
+        variants: 'italic',
+        subsets: 'greek'
+    }
+
+    getFont(fontObject).then(url => {
+        console.log(url)
+    })
+
+</script>
+
+</html>
